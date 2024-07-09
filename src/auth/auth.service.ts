@@ -32,7 +32,6 @@ export class AuthService {
       });
       return await signUpUser.save();
     } catch (error) {
-      console.log(error);
       if (error.code === 11000) {
         // Duplicate key error
         throw new ConflictException('Username already exists');

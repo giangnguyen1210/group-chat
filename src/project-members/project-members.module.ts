@@ -21,5 +21,6 @@ import { Role, RoleSchema } from 'src/shemas/Role.schema';
     ]),
   ],
   controllers: [ProjectMembersController],
+  exports: [ProjectMembersService],
 })
 export class ProjectMembersModule {}

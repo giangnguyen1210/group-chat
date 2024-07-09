@@ -7,6 +7,8 @@ export class ChatChannel extends Document {
   name: string;
   @Prop({ type: Types.ObjectId, ref: 'TeamsChat' })
   teams_chat_id: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  created_by: Types.ObjectId;
 }
 
 export const ChatChannelSchema = SchemaFactory.createForClass(ChatChannel);

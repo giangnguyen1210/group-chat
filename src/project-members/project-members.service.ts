@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Project } from 'src/shemas/Project.schema';
 import { ProjectMembers } from 'src/shemas/ProjectMembers.schema';
 import { Role } from 'src/shemas/Role.schema';
@@ -41,16 +41,14 @@ export class ProjectMembersService {
   }
 
   async getMembers(project_id: string): Promise<ProjectMembers[]> {
-    return (
-      this.projectMemberModel
-        .find({ project_id })
-        //   .populate('project_id')
-        // .populate({
-        //   path: 'user_id',
-        //   select: '-password', // Exclude the password field
-        // })
-        // .populate('role_id')
-        .exec()
-    );
+    return this.projectMemberModel
+      .find({ project_id: new Types.ObjectId(project_id) })
+      .populate('project_id')
+      .populate({
+        path: 'user_id',
+        select: '-password', // Exclude the password field
+      })
+      .populate('role_id')
+      .exec();
   }
 }
