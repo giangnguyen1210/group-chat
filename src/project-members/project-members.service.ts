@@ -41,6 +41,7 @@ export class ProjectMembersService {
   }
 
   async getMembers(project_id: string): Promise<ProjectMembers[]> {
+    console.log(project_id);
     return this.projectMemberModel
       .find({ project_id: new Types.ObjectId(project_id) })
       .populate('project_id')

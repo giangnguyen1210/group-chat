@@ -11,14 +11,14 @@ export class TeamsChatController {
   async createTeamChat(@Body() createTeamsChatDto: CreateTeamsChatDto) {
     return this.teamsChatService.createTeamChat(createTeamsChatDto);
   }
-  // @Get('/list-member/:id')
-  // async listMember(@Param('id') id: string) {
-  //   return await this.teamsChatService.findMembersByTeamsChatId(id);
-  // }
-  @Get('/find-by-teams-chat-id/:id')
-  async findByTeamsChatId(@Param('id') id: string) {
+  @Get('/list-member/:id')
+  async listMemberByTeamsChatId(@Param('id') id: string) {
     return await this.teamsChatService.findMembersByTeamsChatId(id);
   }
+  // @Get('/find-by-teams-chat-id/:id')
+  // async findByTeamsChatId(@Param('id') id: string) {
+  //   return await this.teamsChatService.findMembersByTeamsChatId(id);
+  // }
   @Get('/list-teams-chat-by-user-id/:id')
   async findByUserId(@Param('id') id: string) {
     return await this.teamsChatService.findTeamsChatByUserId(id);

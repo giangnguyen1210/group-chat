@@ -7,6 +7,10 @@ export class TeamsChat extends Document {
   name: string;
   @Prop({ type: Types.ObjectId, ref: 'Project' })
   project_id: Types.ObjectId;
+  @Prop()
+  avatar: string;
+  @Prop()
+  description: string;
 }
 
 export const TeamsChatSchema = SchemaFactory.createForClass(TeamsChat);

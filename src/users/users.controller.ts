@@ -12,4 +12,9 @@ export class UsersController {
   getAllUser() {
     return this.usersService.getAllUser();
   }
+
+  // @Get('/get-hello')
+  // helloWorld() {
+  //   return this.usersService.helloWorld();
+  // }
 }

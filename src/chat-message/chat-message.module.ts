@@ -9,9 +9,14 @@ import {
   ChatChannelMembersSchema,
 } from 'src/shemas/ChatChannelMembers.schema';
 import { ChatMessageController } from './chat-message.controller';
+// import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ChatMessageConsumer } from './chat-message.consumer';
+import { KafkaModule } from 'src/kafka/kafka.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
+    KafkaModule,
     MongooseModule.forFeature([
       { name: ChatMessage.name, schema: ChatMessageSchema },
       { name: ChatChannel.name, schema: ChatChannelSchema },
@@ -21,8 +26,24 @@ import { ChatMessageController } from './chat-message.controller';
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: process.env.JWT_EXPIRE },
     }),
+    ClientsModule.register([
+      {
+        name: 'CHAT_MESSAGE_SERVICE',
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: 'chat',
+            brokers: ['localhost:9092'],
+          },
+          consumer: {
+            groupId: 'chat-consumer',
+          },
+        },
+      },
+    ]),
   ],
-  providers: [ChatMessageService],
+  providers: [ChatMessageService, ChatMessageConsumer],
   controllers: [ChatMessageController],
+  exports: [ChatMessageService],
 })
 export class ChatMessageModule {}

@@ -38,6 +38,10 @@ export class ChatChannelController {
       updateChatChannelDto,
     );
   }
+  @Delete('/delete/:id')
+  async removeChatChannel(@Param('id') id: string) {
+    return await this.teamsChatService.removeChatChannel(id);
+  }
   @Get('/member/:id')
   async findMemberChatChannel(@Param('id') id: string) {
     return await this.teamsChatService.findMemberChatChannel(id);

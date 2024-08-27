@@ -6,6 +6,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -152,6 +153,11 @@ export class TeamsChatService {
     if (!chatChannelUpdate) {
       throw new NotFoundException('Chat channel not found');
     }
+    if (chatChannelUpdate.name === 'General') {
+      throw new NotAcceptableException(
+        'General channel is not allowed to rename',
+      );
+    }
     const checkChatChannelExist = await this.chatChannelModel.findOne({
       name: updateChatChannelDto.name,
       teams_chat_id: updateChatChannelDto.teams_chat_id,
@@ -163,6 +169,19 @@ export class TeamsChatService {
     return this.chatChannelModel.findByIdAndUpdate(id, updateChatChannelDto, {
       new: true,
     });
+  }
+
+  async removeChatChannel(id: string): Promise<ChatChannel> {
+    const chatChannelRemove = await this.chatChannelModel.findById(id);
+    if (!chatChannelRemove) {
+      throw new NotFoundException('Chat channel not found');
+    }
+    if (chatChannelRemove.name === 'General') {
+      throw new NotAcceptableException(
+        'General channel is not allowed to remove',
+      );
+    }
+    return this.chatChannelModel.findByIdAndDelete(id);
   }
 
   async addMemberChatChannel(
@@ -219,16 +238,53 @@ export class TeamsChatService {
     return deleteMember;
   }
 
-  async findTeamsChatByUserId(id: string): Promise<TeamsChatMembers[]> {
-    const teamsChat = await this.teamsChatMembersModel.find({
-      user_id: new Types.ObjectId(id),
-    });
-    return teamsChat;
+  async findTeamsChatByUserId(id: string): Promise<any[]> {
+    // Tìm teams chat dựa trên user id
+    const teamsChat = await this.teamsChatMembersModel
+      .find({
+        user_id: new Types.ObjectId(id),
+      })
+      .populate({
+        path: 'teams_chat_id',
+        populate: {
+          path: 'project_id', // Populate project_id từ teams_chat_id
+        },
+      })
+      .select('-user_id') // Loại bỏ trường user_id
+      .exec();
+
+    // Tạo một mảng promises để tìm chat channel cho từng teams chat id
+    const teamsChatWithChannels = await Promise.all(
+      teamsChat.map(async (chatMember) => {
+        if (chatMember.teams_chat_id) {
+          // Tìm chat channel dựa trên teams chat id nếu teams_chat_id không bị null
+          const chatChannels = await this.chatChannelModel.find({
+            teams_chat_id: chatMember.teams_chat_id._id,
+          });
+
+          // Gắn thêm thông tin chat channels vào từng teams chat
+          return {
+            ...chatMember.toObject(), // Chuyển đổi document sang object
+            chatChannels, // Gắn thêm trường chatChannels
+          };
+        } else {
+          // Nếu teams_chat_id bị null, trả về chatMember mà không gắn chatChannels
+          return {
+            ...chatMember.toObject(), // Chuyển đổi document sang object
+            chatChannels: [], // Gắn thêm trường chatChannels rỗng
+          };
+        }
+      }),
+    );
+
+    return teamsChatWithChannels;
   }
+
   async findMembersByTeamsChatId(teamsChatId: string) {
     try {
       const members = await this.teamsChatMembersModel
         .find({ teams_chat_id: new Types.ObjectId(teamsChatId) })
+
         .exec();
       // console.log(members);
       return members;

@@ -6,6 +6,9 @@ import { ChatMessageModule } from './chat-message/chat-message.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProjectMembersModule } from './project-members/project-members.module';
+// import { KafkaModule } from './kafka/kafka.module';
+import { GatewayModule } from './gateway/gateway.module';
+// import { KafkaModule } from './kafka/kafka.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -27,6 +30,8 @@ import { ProjectMembersModule } from './project-members/project-members.module';
     ChatMessageModule,
     UsersModule,
     AuthModule,
+    // KafkaModule,
+    GatewayModule,
   ],
 })
 export class AppModule {}
